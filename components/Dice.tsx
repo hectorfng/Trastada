@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
@@ -9,6 +8,14 @@ interface DiceProps {
   value: number | null;
 }
 
+// Helper function for better randomness
+function getRandomInt(min: number, max: number): number {
+  const randomBuffer = new Uint32Array(1);
+  window.crypto.getRandomValues(randomBuffer);
+  const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+  return Math.floor(randomNumber * (max - min + 1)) + min;
+}
+
 const Dice: React.FC<DiceProps> = ({ onRoll, disabled, isRolling, value }) => {
   const { t } = useLanguage();
   const [displayValue, setDisplayValue] = useState(1);
@@ -17,7 +24,8 @@ const Dice: React.FC<DiceProps> = ({ onRoll, disabled, isRolling, value }) => {
     let interval: ReturnType<typeof setInterval> | null = null;
     if (isRolling) {
       interval = setInterval(() => {
-        setDisplayValue(Math.floor(Math.random() * 6) + 1);
+        // Use the new random function for the animation
+        setDisplayValue(getRandomInt(1, 6));
       }, 50);
     } else if (value !== null) {
       setDisplayValue(value);
@@ -30,7 +38,8 @@ const Dice: React.FC<DiceProps> = ({ onRoll, disabled, isRolling, value }) => {
 
   const handleRoll = () => {
     if (!disabled) {
-      const rollValue = Math.floor(Math.random() * 6) + 1;
+      // Use the new random function for the actual roll
+      const rollValue = getRandomInt(1, 6);
       onRoll(rollValue);
     }
   };
