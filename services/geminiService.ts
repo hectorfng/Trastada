@@ -2,7 +2,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getTranslations, Language } from '../localization';
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-console.log("API Key Loaded:", apiKey ? "Sí, recibí una clave." : "No, está vacía.");
 
 
 
