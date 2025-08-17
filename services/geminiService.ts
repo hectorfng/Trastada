@@ -1,47 +1,19 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { getTranslations, Language } from '../localization';
+// services/geminiService.ts
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+// La ruta '../challenges' es para subir de 'services' a la raíz
+import { challenges } from '../challenges';
 
-
-
-if (!apiKey) {
-  console.error("Gemini API key not found in environment variables.");
+// Esta función elige el catálogo correcto basado en la edad
+function getChallengeCategory(age: number) {
+  if (age <= 4) return challenges.toddlers;
+  if (age <= 12) return challenges.kids;
+  if (age <= 17) return challenges.teens;
+  return challenges.adults;
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ 
-  model: "gemini-1.5-flash", // Using 1.5-flash as it's the newer model
-  generationConfig: {
-    temperature: 0.9,
-    maxOutputTokens: 100,
-  }
-});
-
-export async function generateChallenge(age: number, lang: Language): Promise<string> {
-  const t = getTranslations(lang);
-  if (!apiKey) {
-    return Promise.resolve(t.fallbackChallenge1);
-  }
-
-  try {
-    const prompt = t.geminiPrompt(age);
-    
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
-    
-    if (text) {
-      // Basic cleanup in case the model adds quotes
-      return text.trim().replace(/^"|"$/g, '');
-    } else {
-      console.error("Gemini response did not contain text. Response was:", JSON.stringify(response, null, 2));
-      return t.fallbackChallenge2;
-    }
-
-  } catch (error) {
-    console.error("Error generating challenge from Gemini:", error);
-    // Provide a fallback challenge
-    return t.fallbackChallenge2;
-  }
+// La única función que necesitamos: tomar un reto al azar
+export function getChallengeFromCatalog(age: number): string {
+  const category = getChallengeCategory(age);
+  const randomIndex = Math.floor(Math.random() * category.length);
+  return category[randomIndex];
 }
