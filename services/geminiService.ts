@@ -9,7 +9,8 @@ if (!API_KEY) {
   console.error("Gemini API key not found in environment variables.");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+const apiKey = process.env.REACT_APP_GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export async function generateChallenge(age: number, lang: Language): Promise<string> {
   const t = getTranslations(lang);
