@@ -106,7 +106,7 @@ const GameBoard: React.FC<GameBoardProps> = ({ players: initialPlayers, onGameEn
     const player = gameState.players[gameState.currentPlayerIndex];
     const currentSpace = boardSpaces[player.position];
 
-    const processAction () => {
+    const processAction = () => {
         if (player.position >= BOARD_SIZE - 1) {
             onGameEnd(player);
             return;
