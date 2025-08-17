@@ -1,46 +1,40 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getTranslations, Language } from '../localization';
 
-const API_KEY = process.env.API_KEY;
+const apiKey = process.env.REACT_APP_GEMINI_API_KEY || '';
 
-if (!API_KEY) {
-  // In a real app, you'd want to handle this more gracefully.
-  // For this context, we will use a placeholder or log an error.
+if (!apiKey) {
   console.error("Gemini API key not found in environment variables.");
 }
 
-const apiKey = process.env.REACT_APP_GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
+const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash", // Using 1.5-flash as it's the newer model
+  generationConfig: {
+    temperature: 0.9,
+    maxOutputTokens: 100,
+  }
+});
 
 export async function generateChallenge(age: number, lang: Language): Promise<string> {
   const t = getTranslations(lang);
-  if (!API_KEY) {
+  if (!apiKey) {
     return Promise.resolve(t.fallbackChallenge1);
   }
 
   try {
     const prompt = t.geminiPrompt(age);
     
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        temperature: 0.9,
-        // Increased maxOutputTokens and added a thinkingBudget to reserve tokens for the actual response.
-        // This prevents the model from using all tokens for "thinking" and returning an empty response.
-        maxOutputTokens: 100,
-        thinkingConfig: { thinkingBudget: 25 },
-      }
-    });
-
-    const text = response.text;
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
     
     if (text) {
-        // Basic cleanup in case the model adds quotes
-        return text.trim().replace(/^"|"$/g, '');
+      // Basic cleanup in case the model adds quotes
+      return text.trim().replace(/^"|"$/g, '');
     } else {
-        console.error("Gemini response did not contain text. Response was:", JSON.stringify(response, null, 2));
-        return t.fallbackChallenge2;
+      console.error("Gemini response did not contain text. Response was:", JSON.stringify(response, null, 2));
+      return t.fallbackChallenge2;
     }
 
   } catch (error) {
