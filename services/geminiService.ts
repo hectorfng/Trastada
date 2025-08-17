@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getTranslations, Language } from '../localization';
 
 const API_KEY = process.env.API_KEY;
