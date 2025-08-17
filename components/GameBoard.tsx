@@ -5,7 +5,7 @@ import PlayerToken from './PlayerToken';
 import Dice from './Dice';
 import ChallengeModal from './ChallengeModal';
 import SpecialSpaceModal from './SpecialSpaceModal';
-import { generateChallenge } from '../services/geminiService';
+import { getChallengeFromCatalog } from '../services/geminiService';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Translations } from '../localization';
 import Timer from './Timer';
@@ -106,19 +106,19 @@ const GameBoard: React.FC<GameBoardProps> = ({ players: initialPlayers, onGameEn
     const player = gameState.players[gameState.currentPlayerIndex];
     const currentSpace = boardSpaces[player.position];
 
-    const processAction = async () => {
+    const processAction () => {
         if (player.position >= BOARD_SIZE - 1) {
             onGameEnd(player);
             return;
         }
 
         switch (currentSpace.type) {
-            case SpaceType.Challenge:
-                setChallenge({ text: '', isLoading: true });
-                setShowChallengeModal(true);
-                const newChallenge = await generateChallenge(player.age, language);
-                setChallenge({ text: newChallenge, isLoading: false });
-                break;
+            // --- CÓDIGO NUEVO ---
+case SpaceType.Challenge:
+  const newChallenge = getChallengeFromCatalog(player.age);
+  setChallenge({ text: newChallenge, isLoading: false });
+  setShowChallengeModal(true);
+  break;
             case SpaceType.Reward:
             case SpaceType.Penalty:
                 if (typeof currentSpace.message === 'string') {
